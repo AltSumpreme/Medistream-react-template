@@ -1,48 +1,99 @@
-import { useState } from "react";
-import { createAppointment } from "../services/appointmentapi";
+import { useState, useEffect } from "react";
+import { createAppointment, getDoctorsBySpecialization } from "../services/appointmentapi";
 
 interface CreateAppointmentCardProps {
   onCreated: () => void;
 }
 
+interface Doctor {
+  id: string;
+  first_name: string;
+  last_name: string;
+  specialization: string;
+}
+
 export default function CreateAppointmentCard({ onCreated }: CreateAppointmentCardProps) {
   const [form, setForm] = useState({
+    specialization: "",
     doctorId: "",
     appointmentDate: "",
-    startTime: "",
-    endTime: "",
-    appointmentType: "CONSULTATION",
-    mode: "In-Person",
+    appointmentTime: "",
+    duration: 30,
+    location: "",
+    appointmentType: "CONSULTATION" as 'CONSULTATION' | 'FOLLOWUP' | 'CHECKUP' | 'EMERGENCY',
+    mode: "In-Person" as 'ONLINE' | 'In-Person',
     notes: "",
   });
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const specializations = [
+    "Cardiology",
+    "Dermatology",
+    "Neurology",
+    "Pediatrics",
+    "Orthopedics",
+    "Psychiatry",
+    "General Practice",
+    "Surgery",
+    "Radiology",
+    "Oncology",
+  ];
+
+  useEffect(() => {
+    if (form.specialization) {
+      fetchDoctors(form.specialization);
+    } else {
+      setDoctors([]);
+      setForm(prev => ({ ...prev, doctorId: "" }));
+    }
+  }, [form.specialization]);
+
+  const fetchDoctors = async (specialization: string) => {
+    try {
+      setLoadingDoctors(true);
+      const response = await getDoctorsBySpecialization(specialization);
+      setDoctors(Array.isArray(response) ? response : response.doctors || []);
+    } catch (err) {
+      console.error("Failed to fetch doctors:", err);
+      setDoctors([]);
+    } finally {
+      setLoadingDoctors(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.doctorId || !form.appointmentDate || !form.startTime || !form.endTime) {
+    if (!form.doctorId || !form.appointmentDate || !form.appointmentTime || !form.location) {
       alert("Please fill all required fields.");
       return;
     }
 
     try {
       setSubmitting(true);
+      const patientId = localStorage.getItem("userId") || "";
       const payload = {
+        patientId,
         doctorId: form.doctorId,
-        userId: localStorage.getItem("userId"),
-        appointmentDate: new Date(form.appointmentDate).toISOString(),
+        appointmentDate: form.appointmentDate,
+        appointmentTime: form.appointmentTime,
+        duration: form.duration,
+        location: form.location,
         appointmentType: form.appointmentType,
-        startTime: form.startTime,
-        endTime: form.endTime,
         mode: form.mode,
+        specialization: form.specialization,
         notes: form.notes,
       };
       await createAppointment(payload);
       setForm({
+        specialization: "",
         doctorId: "",
         appointmentDate: "",
-        startTime: "",
-        endTime: "",
+        appointmentTime: "",
+        duration: 30,
+        location: "",
         appointmentType: "CONSULTATION",
         mode: "In-Person",
         notes: "",
@@ -63,14 +114,34 @@ export default function CreateAppointmentCard({ onCreated }: CreateAppointmentCa
       </h2>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <input
-          type="text"
-          placeholder="Doctor ID"
+        <select
+          value={form.specialization}
+          onChange={(e) => setForm({ ...form, specialization: e.target.value, doctorId: "" })}
+          required
+          className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+        >
+          <option value="">Select Specialization</option>
+          {specializations.map((spec) => (
+            <option key={spec} value={spec}>{spec}</option>
+          ))}
+        </select>
+
+        <select
           value={form.doctorId}
           onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
           required
-          className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
-        />
+          disabled={!form.specialization || loadingDoctors}
+          className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none text-sm disabled:opacity-50"
+        >
+          <option value="">
+            {loadingDoctors ? "Loading doctors..." : "Select Doctor"}
+          </option>
+          {doctors.map((doc) => (
+            <option key={doc.id} value={doc.id}>
+              Dr. {doc.first_name} {doc.last_name}
+            </option>
+          ))}
+        </select>
 
         <input
           type="date"
@@ -82,23 +153,35 @@ export default function CreateAppointmentCard({ onCreated }: CreateAppointmentCa
 
         <input
           type="time"
-          value={form.startTime}
-          onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+          value={form.appointmentTime}
+          onChange={(e) => setForm({ ...form, appointmentTime: e.target.value })}
           required
           className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
         />
 
         <input
-          type="time"
-          value={form.endTime}
-          onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+          type="number"
+          placeholder="Duration (minutes)"
+          value={form.duration}
+          onChange={(e) => setForm({ ...form, duration: parseInt(e.target.value) || 30 })}
+          min="15"
+          max="240"
+          required
+          className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+        />
+
+        <input
+          type="text"
+          placeholder="Location"
+          value={form.location}
+          onChange={(e) => setForm({ ...form, location: e.target.value })}
           required
           className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
         />
 
         <select
           value={form.appointmentType}
-          onChange={(e) => setForm({ ...form, appointmentType: e.target.value })}
+          onChange={(e) => setForm({ ...form, appointmentType: e.target.value as any })}
           className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
         >
           <option value="CONSULTATION">Consultation</option>
@@ -109,11 +192,11 @@ export default function CreateAppointmentCard({ onCreated }: CreateAppointmentCa
 
         <select
           value={form.mode}
-          onChange={(e) => setForm({ ...form, mode: e.target.value })}
+          onChange={(e) => setForm({ ...form, mode: e.target.value as any })}
           className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
         >
           <option value="In-Person">In-Person</option>
-          <option value="Online">Online</option>
+          <option value="ONLINE">Online</option>
         </select>
 
         <textarea
@@ -127,7 +210,7 @@ export default function CreateAppointmentCard({ onCreated }: CreateAppointmentCa
         <button
           type="submit"
           disabled={submitting}
-          className="sm:col-span-2 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+          className="sm:col-span-2 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium disabled:opacity-50"
         >
           {submitting ? "Creating..." : "Create Appointment"}
         </button>

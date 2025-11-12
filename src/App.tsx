@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, type ReactElement } from "react";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import DashboardPatient from "./pages/patient/DashboardPatient";
@@ -11,7 +12,7 @@ import Reports from "./pages/Reports";
 import Vitals from "./pages/Vitals";
 import Users from "./pages/Users";
 
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+const PrivateRoute = ({ children }: { children: ReactElement }) => {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" replace />;
 };
@@ -19,6 +20,14 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 const getRole = () => localStorage.getItem("role") || "PATIENT";
 
 export default function App() {
+  // Migrate access_token -> token for compatibility with existing PrivateRoute
+  useEffect(() => {
+    const access = localStorage.getItem("access_token");
+    if (access && !localStorage.getItem("token")) {
+      localStorage.setItem("token", access);
+    }
+  }, []);
+
   const role = getRole();
   const token = localStorage.getItem("token");
 

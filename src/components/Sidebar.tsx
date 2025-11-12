@@ -25,16 +25,24 @@ export default function Sidebar() {
           { name: "Dashboard", path: "/patient", icon: LayoutDashboard },
           { name: "Appointments", path: "/patient/appointments", icon: CalendarCheck },
           { name: "Prescriptions", path: "/patient/prescriptions", icon: ClipboardList },
-          { name: "Medical Reports", path: "/patient/reports", icon: FileText },
           { name: "Vitals", path: "/patient/vitals", icon: Activity },
           { name: "Medical Records", path: "/patient/medical-records", icon: FileText },
         ]
+      : role === "DOCTOR"
+      ? [
+          { name: "Dashboard", path: "/doctor", icon: LayoutDashboard },
+          { name: "Patients", path: "/doctor/patients", icon: Users },
+          { name: "Medical Records", path: "/doctor/records", icon: FileText },
+          { name: "Reports", path: "/doctor/reports", icon: ClipboardList },
+        ]
+      : role === "ADMIN"
+      ? [
+          { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
+          { name: "Users", path: "/admin/users", icon: Users },
+        ]
       : [];
 
-  const bottomLinks =
-    role === "PATIENT"
-      ? [{ name: "Users", path: "/patient/users", icon: Users }]
-      : [];
+  const bottomLinks: { name: string; path: string; icon: any }[] = [];
 
   const handleLogout = () => {
     localStorage.clear();

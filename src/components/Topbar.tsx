@@ -1,6 +1,16 @@
 export default function Topbar() {
   const role = localStorage.getItem("role") || "PATIENT";
-  const name = localStorage.getItem("patientName") || "Patient";
+  const userName = localStorage.getItem("userName") || localStorage.getItem("patientName") || "User";
+  
+  // Get proper role display name
+  const getRoleName = () => {
+    switch(role) {
+      case "DOCTOR": return "Doctor";
+      case "ADMIN": return "Admin";
+      case "PATIENT": return "Patient";
+      default: return "User";
+    }
+  };
 
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm px-6 py-3 flex justify-between items-center sticky top-0 z-50">
@@ -12,7 +22,7 @@ export default function Topbar() {
             ? "Admin Dashboard"
             : "Patient Dashboard"}
         </h2>
-        <p className="text-xs text-gray-500">Welcome back, {name}</p>
+        <p className="text-xs text-gray-500">Welcome back, {userName} ({getRoleName()})</p>
       </div>
 
       <button

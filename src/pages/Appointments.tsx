@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import {
-  getAppointments,
+  getAllAppointments,
   cancelAppointment,
   updateAppointment,
 } from "../services/appointmentapi";
@@ -30,7 +30,7 @@ export default function Appointments() {
     const fetchAppointments = async () => {
       setLoading(true);
       try {
-        const data = await getAppointments();
+        const data = await getAllAppointments();
         setAppointments(data);
       } catch (error) {
         console.error("Failed to load appointments:", error);
