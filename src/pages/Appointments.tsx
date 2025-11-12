@@ -15,6 +15,7 @@ interface Appointment {
   specialization?: string;
   appointmentDate: string;
   status: string;
+  location?: string;
 }
 
 export default function Appointments() {
@@ -97,27 +98,26 @@ export default function Appointments() {
         {/* Header */}
         <header className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold text-gray-800 tracking-tight">
+            <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
               Appointments
             </h1>
-            <p className="text-gray-600 mt-2 text-sm md:text-base">
-              Manage and track your{" "}
-              <span className="font-medium text-blue-600">scheduled sessions</span>.
+            <p className="text-gray-500 mt-1 text-sm md:text-base">
+              Manage and track your scheduled sessions.
             </p>
           </div>
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="mt-4 md:mt-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+            className="mt-4 md:mt-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium shadow-sm"
           >
             + New Appointment
           </button>
         </header>
 
-        {/* Grid Layout */}
+        {/* Content Layout */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Calendar */}
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition">
+          {/* Calendar Panel */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-md transition">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Appointment Calendar
             </h2>
@@ -130,41 +130,38 @@ export default function Appointments() {
 
           {/* Appointment List */}
           <div className="md:col-span-2">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-5">
               {selectedDate
                 ? `Appointments on ${selectedDate}`
                 : "Your Appointments"}
             </h2>
 
             {filtered.length === 0 ? (
-              <div className="bg-white border border-gray-100 rounded-3xl p-10 text-center shadow-sm text-gray-500">
-                <p className="text-2xl font-semibold mb-3">
+              <div className="bg-white border border-gray-100 rounded-2xl p-10 text-center shadow-sm text-gray-500">
+                <p className="text-xl font-semibold mb-2">
                   No Appointments Yet
                 </p>
                 <p className="text-sm">
-                  You currently don’t have any scheduled appointments.
+                  You currently don’t have any scheduled sessions.
                 </p>
               </div>
             ) : (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {filtered.map((a, index) => (
-                  <div
+                  <AppointmentCard
                     key={a.id}
-                    className="transition-all duration-300 ease-in-out transform hover:-translate-y-1"
+                    id={a.id}
+                    doctorName={a.doctorName}
+                    specialization={a.specialization}
+                    appointmentDate={a.appointmentDate}
+                    status={a.status}
+                    location={a.location || "Clinic Room 101"}
+                    onCancel={handleCancel}
+                    onReschedule={handleReschedule}
                     style={{
                       animation: `fadeIn 0.4s ease ${index * 0.08}s both`,
                     }}
-                  >
-                    <AppointmentCard
-                      id={a.id}
-                      doctorName={a.doctorName}
-                      specialization={a.specialization}
-                      appointmentDate={a.appointmentDate}
-                      status={a.status}
-                      onCancel={handleCancel}
-                      onReschedule={handleReschedule}
-                    />
-                  </div>
+                  />
                 ))}
               </div>
             )}
@@ -172,7 +169,7 @@ export default function Appointments() {
         </div>
       </div>
 
-      {/* ✅ Modal for Create Appointment */}
+      {/* Create Appointment Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6 relative border border-gray-200 animate-fadeIn">
@@ -185,7 +182,6 @@ export default function Appointments() {
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
               Create New Appointment
             </h2>
-
             <CreateAppointmentCard
               onCreated={() => {
                 setShowCreateModal(false);

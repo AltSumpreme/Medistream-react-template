@@ -15,17 +15,15 @@ export default function Topbar() {
         <p className="text-xs text-gray-500">Welcome back, {name}</p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <button
-          className="text-sm px-3 py-1.5 rounded-lg text-gray-600 hover:bg-gray-100 transition"
-          onClick={() => {
-            localStorage.clear();
-            window.location.href = "/login";
-          }}
-        >
-          Logout
-        </button>
-      </div>
+      <button
+        onClick={() => {
+          localStorage.clear();
+          window.location.href = "/login";
+        }}
+        className="text-sm font-medium text-gray-600 hover:text-blue-600 transition bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200"
+      >
+        Logout
+      </button>
     </header>
   );
 }

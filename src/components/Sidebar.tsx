@@ -7,6 +7,7 @@ import {
   FileText,
   Activity,
   Users,
+  LogOut,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -18,7 +19,6 @@ export default function Sidebar() {
     if (savedRole) setRole(savedRole);
   }, []);
 
-  // Main navigation group (top)
   const mainLinks =
     role === "PATIENT"
       ? [
@@ -31,41 +31,49 @@ export default function Sidebar() {
         ]
       : [];
 
-  // Bottom navigation
   const bottomLinks =
     role === "PATIENT"
       ? [{ name: "Users", path: "/patient/users", icon: Users }]
       : [];
 
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/login";
+  };
+
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 shadow-sm hidden md:flex flex-col justify-between min-h-screen">
-      {/* Top section */}
+    <aside className="w-64 bg-blue-700 text-white hidden md:flex flex-col justify-between min-h-screen">
+      {/* Logo Section */}
       <div className="flex flex-col flex-1">
-        {/* Logo */}
-        <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-          <h1 className="text-2xl font-extrabold text-blue-700 tracking-tight select-none">
-            Medistream
-          </h1>
+        <div className="px-6 pt-6 pb-4 border-b border-blue-600">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-white text-blue-700 font-bold flex items-center justify-center text-lg">
+              M
+            </div>
+            <h1 className="text-xl font-extrabold tracking-tight select-none">
+              Medistream
+            </h1>
+          </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-1">
+        {/* Navigation Links */}
+        <nav className="flex-1 px-3 py-6 space-y-1">
           {mainLinks.map(({ name, path, icon: Icon }) => {
             const active = location.pathname === path;
             return (
               <Link
                 key={path}
                 to={path}
-                className={`flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium transition-all duration-150 ${
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all duration-150 ${
                   active
-                    ? "bg-blue-50 text-blue-700 border-l-4 border-blue-600"
-                    : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+                    ? "bg-blue-600 text-white"
+                    : "text-blue-100 hover:bg-blue-600/50 hover:text-white"
                 }`}
               >
                 <Icon
                   size={18}
                   className={`${
-                    active ? "text-blue-700" : "text-gray-500"
+                    active ? "text-white" : "text-blue-200"
                   } shrink-0`}
                 />
                 <span className="truncate">{name}</span>
@@ -75,31 +83,35 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* Bottom section */}
-      <div className="border-t border-gray-100 p-4">
+      {/* Bottom Section */}
+      <div className="border-t border-blue-600 px-3 py-5">
         {bottomLinks.map(({ name, path, icon: Icon }) => {
           const active = location.pathname === path;
           return (
             <Link
               key={path}
               to={path}
-              className={`flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all duration-150 ${
                 active
-                  ? "bg-blue-50 text-blue-700 border-l-4 border-blue-600"
-                  : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+                  ? "bg-blue-600 text-white"
+                  : "text-blue-100 hover:bg-blue-600/50 hover:text-white"
               }`}
             >
-              <Icon
-                size={18}
-                className={active ? "text-blue-700" : "text-gray-500"}
-              />
+              <Icon size={18} />
               <span>{name}</span>
             </Link>
           );
         })}
 
-        {/* Footer */}
-        <p className="text-xs text-gray-400 text-center mt-6 select-none">
+        <button
+          onClick={handleLogout}
+          className="mt-3 flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium text-blue-100 hover:bg-blue-600/50 hover:text-white transition-all duration-150 w-full text-left"
+        >
+          <LogOut size={18} />
+          <span>Logout</span>
+        </button>
+
+        <p className="text-xs text-blue-200 text-center mt-6 select-none">
           © {new Date().getFullYear()} Medistream
         </p>
       </div>

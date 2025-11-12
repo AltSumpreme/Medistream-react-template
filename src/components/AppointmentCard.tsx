@@ -4,29 +4,43 @@ export default function AppointmentCard({
   specialization,
   appointmentDate,
   status,
+  location,
   onCancel,
   onReschedule,
+  style,
 }: any) {
   const date = new Date(appointmentDate).toLocaleString(undefined, {
-    dateStyle: "medium",
+    dateStyle: "long",
     timeStyle: "short",
   });
 
   const statusColors: Record<string, string> = {
     CONFIRMED: "bg-green-100 text-green-700",
+    SCHEDULED: "bg-blue-100 text-blue-700",
     PENDING: "bg-yellow-100 text-yellow-700",
     CANCELLED: "bg-red-100 text-red-700",
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
-      <div className="flex items-center justify-between mb-3">
+    <div
+      style={style}
+      className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200"
+    >
+      <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">
-            Dr. {doctorName}
-          </h3>
-          <p className="text-sm text-gray-500">{specialization}</p>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+              M
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">
+                Dr. {doctorName}
+              </h3>
+              <p className="text-sm text-gray-500">{specialization}</p>
+            </div>
+          </div>
         </div>
+
         <span
           className={`text-xs font-semibold px-3 py-1 rounded-full ${
             statusColors[status] || "bg-gray-100 text-gray-700"
@@ -36,12 +50,16 @@ export default function AppointmentCard({
         </span>
       </div>
 
-      <p className="text-sm text-gray-700 mb-4">
-        Appointment Date:{" "}
-        <span className="font-medium text-gray-900">{date}</span>
-      </p>
+      <div className="text-sm text-gray-700 space-y-1 mt-2">
+        <p>
+          <span className="font-medium">Date & Time:</span> {date}
+        </p>
+        <p>
+          <span className="font-medium">Location:</span> {location}
+        </p>
+      </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 mt-4">
         {status !== "CANCELLED" && (
           <>
             <button

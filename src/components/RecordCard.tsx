@@ -1,3 +1,4 @@
+import { Eye } from "lucide-react";
 import type { MedicalRecord } from "../services/medicalRecordsapi";
 
 interface RecordCardProps {
@@ -6,55 +7,44 @@ interface RecordCardProps {
   onDelete?: (id: string) => void;
 }
 
-export default function RecordCard({ record, onEdit, onDelete }: RecordCardProps) {
-  const date = new Date(record.createdAt).toLocaleDateString(undefined, {
+export default function RecordCard({ record }: RecordCardProps) {
+  const date = new Date(record.createdAt).toLocaleString("en-US", {
     year: "numeric",
-    month: "short",
-    day: "numeric",
+    month: "long",
   });
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5 flex justify-between items-start hover:shadow-md transition">
-      <div className="space-y-1">
-        <div className="text-base font-semibold text-gray-800">
-          Diagnosis: {record.diagnosis}
-        </div>
-        <div className="text-sm text-gray-700">
-          Doctor: <span className="font-medium">{record.doctorName}</span>
-        </div>
-        <div className="text-sm text-gray-700">
-          Patient: <span className="font-medium">{record.patientName}</span>
+    <div className="flex items-center justify-between bg-white rounded-xl p-5 border border-gray-200 hover:shadow-sm transition-all">
+      <div className="flex items-center gap-4">
+        {/* File icon */}
+        <div className="w-10 h-10 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v14a2 2 0 01-2 2z" />
+          </svg>
         </div>
 
-        {record.vitals && (
-          <div className="text-sm text-gray-700 mt-2 space-y-0.5">
-            {record.vitals.bloodPressure && (
-              <p>Blood Pressure: {record.vitals.bloodPressure}</p>
-            )}
-            {record.vitals.heartRate && (
-              <p>Heart Rate: {record.vitals.heartRate} BPM</p>
-            )}
-            {record.vitals.bmi && <p>BMI: {record.vitals.bmi}</p>}
-            {record.vitals.weight && <p>Weight: {record.vitals.weight} kg</p>}
-          </div>
-        )}
-
-        <p className="text-xs text-gray-500 mt-2">Created: {date}</p>
+        {/* Record info */}
+        <div>
+          <h3 className="text-base font-semibold text-gray-900">
+            {record.diagnosis}
+          </h3>
+          <p className="text-sm text-gray-600">
+          {/*  {record.type || "Clinical Notes"} */}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">{date}</p>
+        </div>
       </div>
 
-      <div className="flex flex-col items-end gap-2 ml-4 shrink-0">
-        <button
-          onClick={() => onEdit?.(record.id)}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => onDelete?.(record.id)}
-          className="text-sm text-red-600 hover:text-red-700 font-medium"
-        >
-          Delete
-        </button>
+      {/* Right side metadata */}
+      <div className="flex items-center gap-4 text-sm text-gray-500">
+      {/*  <span>{record.fileSize || "2.4 MB"}</span> */}
+        <Eye className="w-5 h-5 text-gray-500 hover:text-gray-700 cursor-pointer" />
       </div>
     </div>
   );
